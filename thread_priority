@@ -1,0 +1,34 @@
+	pthread_attr_t custom_sched_attr; 	
+	        . 	
+	        . 	
+	        . 	
+	        pthread_attr_init(&custom_sched_attr); 	
+	        pthread_attr_setscope(&custom_sched_attr, PTHREAD_SCOPE_PROCESS); 	
+	        pthread_create(&thread, &custom_sched_attr, ...);
+
+The pthread_attr_setscope function sets the scheduling-scope attribute in a thread attribute object to either system-scope scheduling (PTHREAD_SCOPE_SYSTEM), as in Example 4-21, or process-scope scheduling (PTHREAD_SCOPE_PROCESS). Conversely, you'd use pthread_attr_getscope to obtain the current scope setting of an attribute object. 	
+
+
+Setting Scheduling Policy and Priority 	
+	You can set a thread's scheduling policy and priority in the thread attribute object you specify in the pthread_create call that creates the thread. Assume that we have a thread attribute object named custom_sched_attr. We've initialized it with a call to pthread_attr_init. We specify it in calls to pthread_attr_setschedpolicy to set the scheduling policy and pthread_attr_setschedparam to set the scheduling priority, as shown in Example 4-22. 	
+	Example 4-22: Setting a Thread's Scheduling Attributes (sched.c) 	
+	pthread_attr_t custom_sched_attr; 	
+	int fifo_max_prio, fifo_min_prio; 	
+	struct sched_param fifo_param; 	
+	. 	
+	. 	
+	. 	
+	  pthread_attr_init(&custom_sched_attr); 	
+	  pthread_attr_setinheritsched(&custom_sched_attr, PTHREAD_EXPLICIT_SCHED); 	
+	  pthread_attr_setschedpolicy(&custom_sched_attr, SCHED_FIFO); 	
+		
+	  fifo_max_prio = sched_get_priority_max(SCHED_FIFO); 	
+	  fifo_min_prio = sched_get_priority_min(SCHED_FIFO); 	
+	  fifo_mid_prio = (fifo_min_prio + fifo_max_prio)/2; 	
+	  fifo_param.sched_priority = fifo_mid_prio; 	
+		
+	  pthread_attr_setschedparam(&custom_sched_attr, &fifo_param); 	
+	  pthread_create(&(threads[i]), &custom_sched_attr, ....); 	
+		
+	The way in which pthread_attr_setschedparam is used demands a little more explanation. 	
+	When you use pthread_attr_setschedpolicy to set a thread's policy to SCHED_FIFO or SCHED_RR, you can also call pthread_attr_setschedparam to set its parameters. Th
